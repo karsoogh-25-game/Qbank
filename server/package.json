@@ -13,7 +13,6 @@
   "dependencies": {
     "@adminjs/express": "^5.1.0",
     "@adminjs/sequelize": "^3.0.0",
-    "@adminjs/upload": "^3.0.1",
     "adminjs": "^6.8.7",
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.0",

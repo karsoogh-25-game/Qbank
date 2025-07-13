@@ -4,14 +4,11 @@ const http = require('http');
 const { Server } = require("socket.io");
 const db = require('./models');
 const bcrypt = require('bcryptjs');
-const formidable = require('express-formidable');
-const path = require('path');
 
 // Standard CJS requires for AdminJS v6
 const AdminJS = require('adminjs');
 const AdminJSExpress = require('@adminjs/express');
 const AdminJSSequelize = require('@adminjs/sequelize');
-const uploadFeature = require('@adminjs/upload');
 
 const app = express();
 const server = http.createServer(app);
@@ -21,7 +18,6 @@ const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(express.static('public'));
-app.use(formidable());
 
 app.get('/', (req, res) => {
   res.send('<h1>Contest Server is Running!</h1>');
@@ -60,46 +56,12 @@ const start = async () => {
       Database: AdminJSSequelize.Database,
     });
 
-    const localProvider = {
-      bucket: 'public/uploads',
-      opts: {
-        baseUrl: '/uploads',
-      },
-    };
-    
-    // Manually define and bundle upload components
-    const componentLoader = new AdminJS.ComponentLoader();
-    const Components = {
-        Edit: componentLoader.add('UploadEdit', path.resolve(__dirname, 'admin/components/UploadEdit')),
-        Show: componentLoader.add('UploadShow', path.resolve(__dirname, 'admin/components/UploadShow')),
-        List: componentLoader.add('UploadList', path.resolve(__dirname, 'admin/components/UploadList')),
-    };
-
     const adminOptions = {
       rootPath: '/admin',
-      componentLoader, // Pass the loader instance
       resources: [
         { resource: db.Admin, options: { properties: { password: { isVisible: { list: false, show: false, edit: true, filter: false } } } } },
         db.Group,
-        { 
-          resource: db.Question, 
-          features: [uploadFeature({
-            provider: { local: localProvider },
-            properties: {
-              key: 'filePath', file: 'upload', filename: 'filename', mimeType: 'mimeType', size: 'size',
-            },
-            validation: {
-              mimeTypes: ['image/png', 'image/jpeg', 'image/gif'],
-              maxSize: 5 * 1024 * 1024,
-            },
-            // Tell the feature to use our bundled components
-            component: {
-                edit: Components.Edit,
-                list: Components.List,
-                show: Components.Show,
-            },
-          })] 
-        },
+        db.Question, // Question resource without any special features
         db.Submission,
       ],
       branding: { companyName: 'Contest Admin Panel', softwareBrochure: false },
@@ -143,16 +105,5 @@ const start = async () => {
     process.exit(1);
   }
 };
-
-// We need placeholder files for the bundler to work.
-const fs = require('fs');
-const dir = path.join(__dirname, 'admin/components');
-if (!fs.existsSync(dir)){
-    fs.mkdirSync(dir, { recursive: true });
-}
-fs.writeFileSync(path.join(dir, 'UploadEdit.jsx'), 'export default () => null');
-fs.writeFileSync(path.join(dir, 'UploadShow.jsx'), 'export default () => null');
-fs.writeFileSync(path.join(dir, 'UploadList.jsx'), 'export default () => null');
-
 
 start();

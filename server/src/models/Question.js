@@ -5,22 +5,9 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true
     },
-    // Properties for uploaded file
-    filePath: { // مسیر فایل در سرور
+    imagePath: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    filename: { // نام اصلی فایل
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    mimeType: { // نوع فایل مثل image/png
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    size: { // حجم فایل به بایت
-      type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: false
     },
     prize: {
       type: DataTypes.TEXT,
